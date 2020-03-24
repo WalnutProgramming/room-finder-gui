@@ -1,5 +1,4 @@
-const code = `
-/* eslint-disable class-methods-use-this */
+const code = `/* eslint-disable class-methods-use-this */
 /* eslint-disable max-classes-per-file */
 import {
   Direction,
