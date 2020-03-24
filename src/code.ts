@@ -54,7 +54,7 @@ const b: Building = new Building<StairNodeId, ConnectionsNodeId>([
     new Room('a'),
     new Room("b", LEFT),
     // This is a comment
-    new Room("c", RIGHT)
+    new Room("n", RIGHT)
   ])
 ])
 `;

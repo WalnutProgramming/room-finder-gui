@@ -8,7 +8,7 @@
       @click="click"
     >
       <rect class="rect" width="100%" height="50%" x="0%" y="25%"></rect>
-      <g v-for="(room, index) in rooms" :key="room.name">
+      <g v-for="(room, index) in rooms">
         <RoomPicture
           :x="roomX(index)"
           :bottom="room.side === 1"
@@ -16,7 +16,7 @@
         />
       </g>
       <span />
-      <g v-for="index in this.range(rooms.length + 1)" :key="index">
+      <g v-for="index in this.range(rooms.length + 1)">
         <rect
           height="25%"
           y="0%"
@@ -84,7 +84,7 @@ export default Vue.extend({
       return 2 + 7 * index - 0.1;
     },
     click() {
-      this.$emit("newRoom", this.closestLineX, this.isLeft);
+      this.$emit("newRoom", this.closestLineX, !this.isLeft);
     },
     range(n) {
       return [...Array(n).keys()];

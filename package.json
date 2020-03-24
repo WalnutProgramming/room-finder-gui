@@ -55,7 +55,11 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
-    "rules": {},
+    "rules": {
+      "vue/require-v-for-key": 0,
+      "@typescript-eslint/ban-ts-ignore": 0,
+      "@typescript-eslint/no-explicit-any": 0
+    },
     "overrides": [
       {
         "files": [

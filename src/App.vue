@@ -1,38 +1,56 @@
 <template>
-  <div id="app">
-    <Picture :rooms="rooms" />
-    <p>Hi</p>
+  <div>
+    <div id="app">
+      <Picture :rooms="rooms" @newRoom="insert" />
+      <p>Hi</p>
+      <button @click="insert(2)">insert 2</button>
+    </div>
+    <pre>{{ codeSample }}</pre>
   </div>
 </template>
 
 <script>
-/* eslint-disable @typescript-eslint/ban-ts-ignore */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Vue from "vue";
 import Picture from "@/components/ThePicture.vue";
-import "./thing";
-import code from "./code";
-import { parse } from "@babel/parser";
+import {
+  findHallwayWithLineNumber,
+  insertRoom,
+  getCode,
+  getRoomsFromHallway,
+  getAst,
+} from "./thing";
+import oldCode from "./code";
 
 export default Vue.extend({
   components: { Picture },
   data() {
     return {
-      theCode: code,
+      ast: getAst(oldCode),
+      lineNum: 53,
     };
   },
   computed: {
-    ast() {
-      const opts = {
-        plugins: ["typescript"],
-        sourceType: "unambiguous",
-      };
-      return parse(this.theCode, opts);
+    theCode() {
+      return getCode(this.ast);
+    },
+    hallway() {
+      return findHallwayWithLineNumber(this.ast, this.lineNum);
+    },
+    rooms() {
+      console.log(this.hallway);
+      return getRoomsFromHallway(this.hallway);
+    },
+    codeSample() {
+      const arr = this.theCode.split("\n");
+      return arr.slice(arr.length - 15).join("\n");
+    },
+  },
+  methods: {
+    insert(n, isRight = false) {
+      insertRoom(this.hallway, n, isRight);
     },
   },
 });
-
-// console.log(parser.parsers);
 </script>
 
 <style>
