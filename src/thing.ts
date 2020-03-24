@@ -18,7 +18,6 @@ let myRoomArray: NodePath<t.ArrayExpression> | undefined = undefined;
 export function findHallwayWithLineNumber(lineNumber: number) {
   traverse(p, {
     NewExpression(path) {
-      // // console.log(path.node);
       if (
         t.isIdentifier(path.node.callee, { name: "Hallway" }) &&
         path.node.loc?.start.line === lineNumber &&
@@ -37,23 +36,10 @@ export function findHallwayWithLineNumber(lineNumber: number) {
 findHallwayWithLineNumber(53);
 function insertRoom(n: number) {
   if (myRoomArray != null) {
-    // console.log("a");
-    // console.log(myRoomArray);
-    // console.log(myRoomArray.get("elements"));
-    // console.log(myRoomArray.get(`elements.${n}`));
-    // console.log("b");
-    // (myRoomArray.get(`elements[${n - 1}]`) as NodePath<
-    //   t.NewExpression
-    // >).insertAfter(parseExpression("new Room('a')"));
     myRoomArray.node.elements.splice(n, 0, parseExpression("new Room('z')"));
-    // console.log(myRoomArray.node);
-    // console.log("c");
-    // console.log(p.program);
   }
 }
 insertRoom(2);
-// console.log(myRoomArray);
-// buildingThing.declarations[0].init
 const generated = generate(p, {
   retainLines: true,
   retainFunctionParens: true,
@@ -63,5 +49,4 @@ const formatted = prettier.format(generated, {
   plugins: [prettierTypeScript],
 });
 
-// console.log(p);
 console.log(formatted);
