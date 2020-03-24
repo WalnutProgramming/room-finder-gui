@@ -5,26 +5,29 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 /* eslint-disable @typescript-eslint/ban-ts-ignore */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Vue from "vue";
 import Picture from "@/components/ThePicture.vue";
-import { Room, Direction } from "room-finder";
 import "./thing";
-
-const { LEFT, RIGHT } = Direction;
+import code from "./code";
+import { parse } from "@babel/parser";
 
 export default Vue.extend({
   components: { Picture },
+  data() {
+    return {
+      theCode: code,
+    };
+  },
   computed: {
-    rooms() {
-      return [
-        new Room("ajfk"),
-        new Room("a", RIGHT),
-        new Room("c", LEFT),
-        new Room("djfaksjkdsfjaks"),
-      ];
+    ast() {
+      const opts = {
+        plugins: ["typescript"],
+        sourceType: "unambiguous",
+      };
+      return parse(this.theCode, opts);
     },
   },
 });
