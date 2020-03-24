@@ -1,4 +1,4 @@
-import { parse, parseExpression } from "@babel/parser";
+import { parseExpression } from "@babel/parser";
 import generate from "@babel/generator";
 import * as t from "@babel/types";
 // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -8,12 +8,6 @@ import prettierTypeScript from "prettier/parser-typescript";
 import code from "./code";
 import traverse, { NodePath } from "@babel/traverse";
 
-const opts: { plugins: ["typescript"]; sourceType: "unambiguous" } = {
-  plugins: ["typescript"],
-  sourceType: "unambiguous",
-};
-
-const p = parse(code, opts);
 export function findHallwayWithLineNumber(
   lineNumber: number
 ): NodePath<t.ArrayExpression> | null {
