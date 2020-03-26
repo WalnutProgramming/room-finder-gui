@@ -8,22 +8,29 @@
       @click="click"
     >
       <rect class="rect" width="100%" height="50%" x="0%" y="25%"></rect>
-      <g v-for="(room, index) in rooms">
+      <g v-for="(room, index) in rooms" :key="JSON.stringify(room)">
         <RoomPicture
           :x="roomX(index)"
-          :bottom="room.side === 1"
-          :name="room.name"
+          :bottom="
+            ('side' in room && room.side === 'Right') ||
+            ('direction' in room && room.direction === 'Right')
+          "
+          :name="'name' in room ? room.name : ''"
+          :selected="index === $store.state.currentRoomIndex"
+          @click="$store.dispatch('clickedRoom', { index })"
         />
       </g>
       <span />
-      <g v-for="index in this.range(rooms.length + 1)">
+      <g v-for="index in this.range(rooms.length + 1)" :key="index">
         <rect
           height="25%"
           y="0%"
           width="0.2%"
           :x="p(lineX(index))"
           style="fill: blue;"
-          v-show="mousey > 0 && mousey <= 50 && index === closestLineX"
+          v-show="
+            addingRoom && mousex >= 0 && mousey <= 50 && index === closestLineX
+          "
         />
         <rect
           height="25%"
@@ -31,62 +38,63 @@
           width="0.2%"
           :x="p(lineX(index))"
           style="fill: blue;"
-          v-show="mousey > 50 && mousey <= 100 && index === closestLineX"
+          v-show="addingRoom && mousey > 50 && index === closestLineX"
         />
       </g>
     </svg>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from "vue";
 import RoomPicture from "@/components/RoomPicture.vue";
+import { mapGetters, mapState } from "vuex";
 
 export default Vue.extend({
-  props: {
-    rooms: Array,
-  },
   data() {
     return { mousex: -1, mousey: -1 };
   },
   components: { RoomPicture },
   computed: {
-    closestLineX() {
+    ...mapState(["addingRoom"]),
+    ...mapGetters(["rooms"]),
+    closestLineX(): number {
       const arr = this.range(this.rooms.length + 1).map((ind) =>
-        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-        // @ts-ignore
         Math.abs(this.lineX(ind) - this.mousex)
       );
       return arr.indexOf(Math.min(...arr));
     },
-    isLeft() {
+    isLeft(): boolean {
       return this.mousey <= 50;
     },
   },
   methods: {
-    mousemove(e) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const svg = this.$refs.s;
+    mousemove(e: MouseEvent): void {
+      const svg = this.$refs.s as SVGSVGElement;
       const pt = svg.createSVGPoint();
       pt.x = e.clientX;
       pt.y = e.clientY;
-      const { x, y } = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const { x, y } = pt.matrixTransform(svg.getScreenCTM()!.inverse());
       this.mousex = (x / svg.getBBox().width) * 100;
       this.mousey = (y / svg.getBBox().height) * 100;
     },
-    p(n) {
+    p(n: number): string {
       return `${n}%`;
     },
-    roomX(index) {
+    roomX(index: number): number {
       return 3 + 7 * index;
     },
-    lineX(index) {
+    lineX(index: number): number {
       return 2 + 7 * index - 0.1;
     },
-    click() {
-      this.$emit("newRoom", this.closestLineX, !this.isLeft);
+    click(): void {
+      // this.$emit("newRoom", this.closestLineX, !this.isLeft);
+      this.$store.dispatch("newRoom", {
+        position: this.closestLineX,
+        onRight: !this.isLeft,
+      });
     },
-    range(n) {
+    range(n: number): number[] {
       return [...Array(n).keys()];
     },
   },

@@ -9,12 +9,15 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@types/express": "^4.17.3",
     "@types/prettier": "^1.19.1",
     "core-js": "^3.6.4",
+    "dijkstrajs": "^1.0.1",
     "prettier": "^2.0.2",
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.2",
-    "vue-property-decorator": "^8.3.0"
+    "vue-property-decorator": "^8.3.0",
+    "vuex": "^3.1.2"
   },
   "devDependencies": {
     "@types/jest": "^25.1.4",
@@ -24,6 +27,7 @@
     "@vue/cli-plugin-eslint": "~4.2.0",
     "@vue/cli-plugin-typescript": "~4.2.0",
     "@vue/cli-plugin-unit-jest": "~4.2.0",
+    "@vue/cli-plugin-vuex": "~4.2.0",
     "@vue/cli-service": "~4.2.0",
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.1",
@@ -51,9 +55,9 @@
       "ecmaVersion": 2020
     },
     "rules": {
-      "vue/require-v-for-key": 0,
       "@typescript-eslint/ban-ts-ignore": 0,
-      "@typescript-eslint/no-explicit-any": 0
+      "@typescript-eslint/no-explicit-any": 0,
+      "@typescript-eslint/no-non-null-assertion": 0
     },
     "overrides": [
       {
@@ -66,6 +70,10 @@
         }
       }
     ]
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "arrowParens": "always"
   },
   "browserslist": [
     "> 1%",
@@ -82,9 +90,5 @@
       "vue-cli-service lint",
       "git add"
     ]
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "arrowParens": "always"
   }
 }

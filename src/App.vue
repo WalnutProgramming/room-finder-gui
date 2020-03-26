@@ -1,55 +1,19 @@
 <template>
   <div>
     <div id="app">
-      <Picture :rooms="rooms" @newRoom="insert" />
-      <p>Hi</p>
-      <button @click="insert(2)">insert 2</button>
+      <Picture />
+      <button @click="$store.commit('addingRoom', true)">Add room</button>
+      <RoomEditor />
     </div>
-    <pre>{{ codeSample }}</pre>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from "vue";
-import Picture from "@/components/ThePicture.vue";
-import {
-  findHallwayWithLineNumber,
-  insertRoom,
-  getCode,
-  getRoomsFromHallway,
-  getAst,
-} from "./thing";
-import oldCode from "./code";
-
+import ThePicture from "@/components/ThePicture.vue";
+import RoomEditor from "@/components/RoomEditor.vue";
 export default Vue.extend({
-  components: { Picture },
-  data() {
-    return {
-      ast: getAst(oldCode),
-      lineNum: 53,
-    };
-  },
-  computed: {
-    theCode() {
-      return getCode(this.ast);
-    },
-    hallway() {
-      return findHallwayWithLineNumber(this.ast, this.lineNum);
-    },
-    rooms() {
-      console.log(this.hallway);
-      return getRoomsFromHallway(this.hallway);
-    },
-    codeSample() {
-      const arr = this.theCode.split("\n");
-      return arr.slice(arr.length - 15).join("\n");
-    },
-  },
-  methods: {
-    insert(n, isRight = false) {
-      insertRoom(this.hallway, n, isRight);
-    },
-  },
+  components: { Picture: ThePicture, RoomEditor },
 });
 </script>
 

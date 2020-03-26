@@ -1,11 +1,12 @@
 <template>
-  <g width="100%" height="100%">
+  <g width="100%" height="100%" @click="$emit('click')">
     <rect
       class="rect"
       :height="p(rectHeight)"
       :width="p(rectWidth)"
       :x="p(x)"
       :y="p(y)"
+      :style="{ stroke: selected ? 'blue' : 'black' }"
     ></rect>
     <text
       :x="p(x + rectWidth / 2)"
@@ -28,6 +29,7 @@ export default Vue.extend({
     bottom: { type: Boolean, default: false },
     name: String,
     rectWidth: { type: Number, default: 5 },
+    selected: { type: Boolean, default: false },
   },
   computed: {
     rectHeight() {
@@ -44,6 +46,9 @@ export default Vue.extend({
     // percent
     p(n: number) {
       return `${n}%`;
+    },
+    clicked() {
+      console.log(this.name);
     },
   },
   inheritAttrs: false,
