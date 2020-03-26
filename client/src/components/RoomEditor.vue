@@ -2,7 +2,11 @@
   <div style="margin-top: 1em;">
     <div class="input-group">
       <label for="hallwayPartType">Type of this hallway element</label>
-      <select name="hallwayPartType" @input="changeRoomType">
+      <select
+        name="hallwayPartType"
+        :value="currentRoom.type"
+        @input="changeRoomType"
+      >
         <option v-for="type in schemaTypes" :value="type" :key="type">{{
           type
         }}</option>
@@ -39,7 +43,7 @@ export default Vue.extend({
     roomIndex: Number,
   },
   computed: {
-    ...mapGetters(["currentSchema", "canDeleteRoom"]),
+    ...mapGetters(["currentSchema", "canDeleteRoom", "currentRoom"]),
     schemaTypes() {
       return schemas.map((s) => s.type);
     },

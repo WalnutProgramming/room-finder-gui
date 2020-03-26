@@ -23,7 +23,6 @@ export default Vue.extend({
   props: { schemaPart: Object },
   computed: {
     componentType(): string {
-      console.log(this.schemaPart.type);
       switch (this.schemaPart.type) {
         case "string":
           return "StringInput";

@@ -5,6 +5,11 @@
   "author": "22969541+Aurelius333@users.noreply.github.com",
   "license": "UNLICENSED",
   "private": true,
+  "scripts": {
+    "dev": "yarn nodemon index.js",
+    "prestart": "(cd ../client && yarn build)",
+    "start": "node index.js"
+  },
   "prettier": {
     "trailingComma": "es5",
     "arrowParens": "always"

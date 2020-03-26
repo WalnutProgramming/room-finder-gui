@@ -104,7 +104,7 @@ const store = new Vuex.Store({
       if (oldModel.type !== newRoomType) {
         const initialModel = getInitialModel(newRoomType);
         for (const [k, v] of Object.entries(oldModel)) {
-          if (k in Object.keys(initialModel)) {
+          if (Object.keys(initialModel).includes(k)) {
             (initialModel as any)[k] = v;
           }
         }

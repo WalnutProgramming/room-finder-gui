@@ -2,7 +2,11 @@
   <div>
     <div id="app">
       <Picture />
-      <button @click="$store.commit('addingRoom', true)">Add room</button>
+      <p v-show="addingRoom">Click where you want to add a room</p>
+      <button v-if="!addingRoom" @click="$store.commit('addingRoom', true)">
+        Add room
+      </button>
+      <button v-else @click="$store.commit('addingRoom', false)">Cancel</button>
       <RoomEditor />
       <p v-if="failingToConnect">
         Failing to send/receive data from server!
@@ -19,11 +23,11 @@ import { mapState } from "vuex";
 export default Vue.extend({
   components: { Picture: ThePicture, RoomEditor },
   computed: {
-    ...mapState(["building", "failingToConnect"]),
+    ...mapState(["building", "failingToConnect", "addingRoom"]),
   },
   watch: {
     building: {
-      handler(newVal) {
+      handler() {
         this.$store.dispatch("setBuilding");
       },
       deep: true,

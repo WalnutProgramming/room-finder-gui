@@ -69,9 +69,15 @@ export const schemas: Schema[] = [
       },
       {
         model: "nodeId",
-        label: "node ID",
+        label: "Node ID",
         type: "string",
         defaultVal: "",
+      },
+      {
+        model: "isReverseConnection",
+        label: "Is this a reversed connection?",
+        type: "checkbox",
+        defaultVal: false,
       },
       {
         model: "edgeLengthFromPreviousNodeInHallway",
@@ -98,9 +104,15 @@ export const schemas: Schema[] = [
       },
       {
         model: "nodeId",
-        label: "node ID",
+        label: "Node ID",
         type: "string",
         defaultVal: "",
+      },
+      {
+        model: "isReverseConnection",
+        label: "Is this a reversed connection?",
+        type: "checkbox",
+        defaultVal: false,
       },
       {
         model: "edgeLengthFromPreviousNodeInHallway",
@@ -127,9 +139,15 @@ export const schemas: Schema[] = [
       },
       {
         model: "nodeId",
-        label: "node ID",
+        label: "Node ID",
         type: "string",
         defaultVal: "",
+      },
+      {
+        model: "floor",
+        label: "Floor number",
+        type: "number",
+        defaultVal: 1,
       },
       {
         model: "edgeLengthFromPreviousNodeInHallway",

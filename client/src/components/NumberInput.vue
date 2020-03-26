@@ -6,6 +6,7 @@
       :id="schemaPart.model"
       v-model.number="inputValue"
       type="number"
+      step="any"
     />
   </div>
 </template>
