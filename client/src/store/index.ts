@@ -123,7 +123,7 @@ const store = new Vuex.Store({
         })
         .catch(() => {
           commit("setFailingToConnect", true);
-          setTimeout(() => dispatch("getBuilding"), 500);
+          // setTimeout(() => dispatch("getBuilding"), 500);
         });
     },
     setBuilding({ state, commit, dispatch }) {
@@ -134,7 +134,7 @@ const store = new Vuex.Store({
         })
         .catch(() => {
           commit("setFailingToConnect", true);
-          setTimeout(() => dispatch("setBuilding"), 500);
+          // setTimeout(() => dispatch("setBuilding"), 500);
         });
     },
   },
