@@ -1,13 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { schemas, getInitialModel } from "@/schemas";
+import axios from "axios";
 
 Vue.use(Vuex);
 
-const initialRoom = getInitialModel("Room") as any;
-console.log(initialRoom);
+// const initialRoom = getInitialModel("Room") as any;
+// console.log(initialRoom);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     building: {
       type: "Building",
@@ -25,6 +26,7 @@ export default new Vuex.Store({
     currentHallwayIndex: 0,
     currentRoomIndex: 0,
     addingRoom: false,
+    failingToConnect: false,
   },
   strict: process.env.NODE_ENV !== "production",
   getters: {
@@ -43,7 +45,6 @@ export default new Vuex.Store({
     ) {
       const newRoom = getInitialModel("Room") as any;
       newRoom.side = onRight ? "Right" : "Left";
-      console.log(newRoom);
       hallways[currentHallwayIndex].parts.splice(position, 0, newRoom);
     },
     switchCurrentRoomIndex(state, { newIndex }: { newIndex: number }) {
@@ -74,6 +75,12 @@ export default new Vuex.Store({
       currentRoomIndex,
     }) {
       hallways[currentHallwayIndex].parts.splice(currentRoomIndex, 1);
+    },
+    replaceBuilding(state, newBuilding) {
+      state.building = newBuilding;
+    },
+    setFailingToConnect(state, isFailing) {
+      state.failingToConnect = isFailing;
     },
   },
   actions: {
@@ -109,6 +116,33 @@ export default new Vuex.Store({
         commit("deleteCurrentRoom");
       }
     },
+    getBuilding({ commit, dispatch }) {
+      axios
+        .get("/building.json", { timeout: 1000 })
+        .then(({ data }) => {
+          commit("replaceBuilding", data);
+          commit("setFailingToConnect", false);
+        })
+        .catch(() => {
+          commit("setFailingToConnect", true);
+          setTimeout(() => dispatch("getBuilding"), 500);
+        });
+    },
+    setBuilding({ state, commit, dispatch }) {
+      axios
+        .post("/setbuilding", state.building, { timeout: 1000 })
+        .then(() => {
+          commit("setFailingToConnect", false);
+        })
+        .catch(() => {
+          commit("setFailingToConnect", true);
+          setTimeout(() => dispatch("setBuilding"), 500);
+        });
+    },
   },
   modules: {},
 });
+
+store.dispatch("getBuilding");
+
+export default store;

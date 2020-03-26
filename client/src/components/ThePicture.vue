@@ -8,12 +8,12 @@
       @click="click"
     >
       <rect class="rect" width="100%" height="50%" x="0%" y="25%"></rect>
-      <g v-for="(room, index) in rooms" :key="JSON.stringify(room)">
+      <g v-for="(room, index) in rooms" :key="room.id">
         <RoomPicture
           :x="roomX(index)"
           :bottom="
             ('side' in room && room.side === 'Right') ||
-            ('direction' in room && room.direction === 'Right')
+              ('direction' in room && room.direction === 'Right')
           "
           :name="'name' in room ? room.name : ''"
           :selected="index === $store.state.currentRoomIndex"

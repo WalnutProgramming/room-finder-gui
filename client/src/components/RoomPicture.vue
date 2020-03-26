@@ -47,9 +47,6 @@ export default Vue.extend({
     p(n: number) {
       return `${n}%`;
     },
-    clicked() {
-      console.log(this.name);
-    },
   },
   inheritAttrs: false,
 });

@@ -1,0 +1,16 @@
+{
+  "name": "room-finder-gui-server",
+  "version": "0.1.0",
+  "main": "index.js",
+  "author": "22969541+Aurelius333@users.noreply.github.com",
+  "license": "UNLICENSED",
+  "private": true,
+  "prettier": {
+    "trailingComma": "es5",
+    "arrowParens": "always"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.2"
+  }
+}

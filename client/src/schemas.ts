@@ -1,3 +1,5 @@
+import shortid from "shortid";
+
 type SchemaPart = { model: string; label: string } & (
   | { type: "string"; defaultVal: string }
   | { type: "option"; options: string[] }
@@ -166,5 +168,6 @@ export function getInitialModel(type: string) {
   return {
     ...getInitialModelFromParts(schemas.find((s) => s.type === type)!.parts),
     type,
+    id: shortid.generate(),
   };
 }
