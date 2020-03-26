@@ -1,4 +1,15 @@
 import shortid from "shortid";
+import {
+  Room,
+  Direction,
+  reverseConnection,
+  Fork,
+  Stairs,
+  onFloor,
+  Turn,
+  Hallway,
+  Building,
+} from "./room-finder-src";
 
 type SchemaPart = { model: string; label: string } & (
   | { type: "string"; defaultVal: string }
@@ -8,7 +19,11 @@ type SchemaPart = { model: string; label: string } & (
   | { type: "number"; defaultVal: number }
 );
 
-type Schema = { type: string; parts: SchemaPart[] };
+type Schema = {
+  type: string;
+  parts: SchemaPart[];
+  toHallwayElement: (obj: any) => any;
+};
 
 export const schemas: Schema[] = [
   {
@@ -39,6 +54,26 @@ export const schemas: Schema[] = [
         defaultVal: [],
       },
     ],
+    toHallwayElement({
+      name,
+      side,
+      prefix,
+      aliases,
+    }: {
+      name: string;
+      side: string;
+      prefix: string;
+      aliases: string[];
+    }) {
+      return new Room(
+        name === "" ? null : name,
+        side === "Left" ? Direction.LEFT : Direction.RIGHT,
+        {
+          prefix,
+          aliases,
+        }
+      );
+    },
   },
   {
     type: "RoomWithNode",
@@ -86,6 +121,34 @@ export const schemas: Schema[] = [
         defaultVal: 1,
       },
     ],
+    toHallwayElement({
+      name,
+      side,
+      prefix,
+      aliases,
+      nodeId,
+      isReverseConnection,
+      edgeLengthFromPreviousNodeInHallway,
+    }: {
+      name: string;
+      side: string;
+      prefix: string;
+      aliases: string[];
+      nodeId: string;
+      isReverseConnection: boolean;
+      edgeLengthFromPreviousNodeInHallway: number;
+    }) {
+      return new Room(
+        name === "" ? null : name,
+        side === "Left" ? Direction.LEFT : Direction.RIGHT,
+        {
+          prefix,
+          aliases,
+          nodeId: isReverseConnection ? reverseConnection(nodeId) : nodeId,
+          edgeLengthFromPreviousNodeInHallway,
+        }
+      );
+    },
   },
   {
     type: "Fork",
@@ -121,6 +184,26 @@ export const schemas: Schema[] = [
         defaultVal: 1,
       },
     ],
+    toHallwayElement({
+      side,
+      destinationName,
+      nodeId,
+      isReverseConnection,
+      edgeLengthFromPreviousNodeInHallway,
+    }: {
+      side: string;
+      destinationName: string;
+      nodeId: string;
+      isReverseConnection: boolean;
+      edgeLengthFromPreviousNodeInHallway: number;
+    }) {
+      return new Fork(
+        side === "Left" ? Direction.LEFT : Direction.RIGHT,
+        isReverseConnection ? reverseConnection(nodeId) : nodeId,
+        destinationName,
+        edgeLengthFromPreviousNodeInHallway
+      );
+    },
   },
   {
     type: "Stairs",
@@ -156,6 +239,26 @@ export const schemas: Schema[] = [
         defaultVal: 1,
       },
     ],
+    toHallwayElement({
+      side,
+      stairName,
+      nodeId,
+      floor,
+      edgeLengthFromPreviousNodeInHallway,
+    }: {
+      side: string;
+      stairName: string;
+      nodeId: string;
+      floor: number;
+      edgeLengthFromPreviousNodeInHallway: number;
+    }) {
+      return new Stairs(
+        side === "Left" ? Direction.LEFT : Direction.RIGHT,
+        onFloor(nodeId, floor),
+        stairName,
+        edgeLengthFromPreviousNodeInHallway
+      );
+    },
   },
   {
     type: "Turn",
@@ -167,6 +270,25 @@ export const schemas: Schema[] = [
         options: ["Left", "Right"],
       },
     ],
+    toHallwayElement({ side }: { side: string }) {
+      return new Turn(side === "Left" ? Direction.LEFT : Direction.RIGHT);
+    },
+  },
+];
+
+type HallwaySchema = {
+  type: string;
+  toHallway: (
+    rooms: (Room<string> | Stairs<string> | Turn)[]
+  ) => Hallway<string, string>;
+};
+
+const hallwaySchemas: HallwaySchema[] = [
+  {
+    type: "Hallway",
+    toHallway(rooms: (Room<string> | Stairs<string> | Turn)[]) {
+      return new Hallway(rooms);
+    },
   },
 ];
 
@@ -188,4 +310,27 @@ export function getInitialModel(type: string) {
     type,
     id: shortid.generate(),
   };
+}
+
+function getRoomSchema({ type }: { type: string }) {
+  return schemas.find((s) => s.type === type)!;
+}
+
+function getHallwaySchema({ type }: { type: string }) {
+  return hallwaySchemas.find((s) => s.type === type)!;
+}
+
+export function getBuilding({ hallways }: any): Building | null {
+  let b: Building | null;
+  b = new Building(
+    hallways.map((h: any) => {
+      const f = getHallwaySchema(h).toHallway;
+      const rooms = h.parts.map((r: any) => {
+        const fRoom = getRoomSchema(r).toHallwayElement;
+        return fRoom(r);
+      });
+      return f(rooms);
+    })
+  );
+  return b;
 }

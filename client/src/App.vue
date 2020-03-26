@@ -11,6 +11,13 @@
       <p v-if="failingToConnect">
         Failing to send/receive data from server!
       </p>
+
+      <div style="margin-top: 4em">
+        <h4>Directions preview</h4>
+        <div><label>From: </label><input v-model="from" /></div>
+        <div><label>To: </label><input v-model="to" /></div>
+        <pre>{{ directions }}</pre>
+      </div>
     </div>
   </div>
 </template>
@@ -20,10 +27,22 @@ import Vue from "vue";
 import ThePicture from "@/components/ThePicture.vue";
 import RoomEditor from "@/components/RoomEditor.vue";
 import { mapState } from "vuex";
+import { Building } from "./room-finder-src";
 export default Vue.extend({
   components: { Picture: ThePicture, RoomEditor },
+  data() {
+    return { from: "", to: "" };
+  },
   computed: {
     ...mapState(["building", "failingToConnect", "addingRoom"]),
+    directions() {
+      const b: Building = this.$store.getters.roomFinderBuilding;
+      if (b.isValidRoomName(this.from) && b.isValidRoomName(this.to)) {
+        return b.getDirections(this.from, this.to);
+      } else {
+        return "invalid";
+      }
+    },
   },
   watch: {
     building: {

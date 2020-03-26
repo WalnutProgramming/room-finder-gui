@@ -1,6 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { schemas, getInitialModel } from "@/schemas";
+import { schemas, getInitialModel, getBuilding } from "@/schemas";
 import axios from "axios";
 
 Vue.use(Vuex);
@@ -34,6 +34,7 @@ const store = new Vuex.Store({
     currentSchema: (_, { currentRoom: { type } }) =>
       schemas.find((s) => s.type === type),
     canDeleteRoom: (_, { rooms }) => rooms.length > 1,
+    roomFinderBuilding: ({ building }) => getBuilding(building),
   },
   mutations: {
     insertRoom(
