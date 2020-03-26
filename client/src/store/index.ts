@@ -5,9 +5,6 @@ import axios from "axios";
 
 Vue.use(Vuex);
 
-// const initialRoom = getInitialModel("Room") as any;
-// console.log(initialRoom);
-
 const store = new Vuex.Store({
   state: {
     building: {
@@ -104,7 +101,7 @@ const store = new Vuex.Store({
       if (oldModel.type !== newRoomType) {
         const initialModel = getInitialModel(newRoomType);
         for (const [k, v] of Object.entries(oldModel)) {
-          if (Object.keys(initialModel).includes(k)) {
+          if (k !== "type" && Object.keys(initialModel).includes(k)) {
             (initialModel as any)[k] = v;
           }
         }
