@@ -35,13 +35,9 @@ export default Vue.extend({
   },
   computed: {
     ...mapState(["building", "failingToConnect", "addingRoom"]),
-    directions() {
+    directions(): string {
       const b: Building = this.$store.getters.roomFinderBuilding;
-      if (b.isValidRoomName(this.from) && b.isValidRoomName(this.to)) {
-        return b.getDirections(this.from, this.to);
-      } else {
-        return "invalid";
-      }
+      return b.getDirections(this.from, this.to) ?? "invalid";
     },
   },
   watch: {

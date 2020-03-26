@@ -321,8 +321,7 @@ function getHallwaySchema({ type }: { type: string }) {
 }
 
 export function getBuilding({ hallways }: any): Building | null {
-  let b: Building | null;
-  b = new Building(
+  const b: Building | null = new Building(
     hallways.map((h: any) => {
       const f = getHallwaySchema(h).toHallway;
       const rooms = h.parts.map((r: any) => {
