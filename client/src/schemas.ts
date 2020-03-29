@@ -9,7 +9,7 @@ import {
   Turn,
   Hallway,
   Building,
-} from "./room-finder-src";
+} from "room-finder";
 
 type SchemaPart = { model: string; label: string } & (
   | { type: "string"; defaultVal: string }

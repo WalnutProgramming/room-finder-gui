@@ -7,7 +7,6 @@
   "private": true,
   "scripts": {
     "dev": "yarn nodemon index.js",
-    "prestart": "(cd ../client && yarn build)",
     "start": "node index.js"
   },
   "prettier": {
@@ -15,7 +14,9 @@
     "arrowParens": "always"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
     "nodemon": "^2.0.2"
   }
 }

@@ -27,7 +27,7 @@ import Vue from "vue";
 import ThePicture from "@/components/ThePicture.vue";
 import RoomEditor from "@/components/RoomEditor.vue";
 import { mapState } from "vuex";
-import { Building } from "./room-finder-src";
+import { Building } from "room-finder";
 export default Vue.extend({
   components: { Picture: ThePicture, RoomEditor },
   data() {
