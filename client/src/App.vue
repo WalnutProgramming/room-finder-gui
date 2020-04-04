@@ -24,8 +24,8 @@
 
 <script lang="ts">
 import Vue from "vue";
-import ThePicture from "@/components/ThePicture.vue";
-import RoomEditor from "@/components/RoomEditor.vue";
+import ThePicture from "@/components/picture/ThePicture.vue";
+import RoomEditor from "@/components/editor/RoomEditor.vue";
 import { mapState } from "vuex";
 import { Building } from "room-finder";
 export default Vue.extend({

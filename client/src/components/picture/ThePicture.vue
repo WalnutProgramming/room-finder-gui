@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import RoomPicture from "@/components/RoomPicture.vue";
+import RoomPicture from "./RoomPicture.vue";
 import { mapGetters, mapState } from "vuex";
 
 export default Vue.extend({

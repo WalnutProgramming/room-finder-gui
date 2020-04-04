@@ -35,7 +35,7 @@
 import Vue from "vue";
 import SchemaPartInput from "./SchemaPartInput.vue";
 import { mapGetters, mapActions } from "vuex";
-import { schemas } from "@/schemas";
+import { schemas } from "../../schemas";
 
 export default Vue.extend({
   components: { SchemaPartInput },
