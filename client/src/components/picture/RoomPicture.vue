@@ -1,20 +1,19 @@
 <template>
-  <g width="100%" height="100%" @click="$emit('click')">
+  <g @click="$emit('click')">
     <rect
       class="rect"
-      :height="p(rectHeight)"
-      :width="p(rectWidth)"
-      :x="p(x)"
-      :y="p(y)"
+      :height="rectHeight"
+      :width="rectWidth"
+      :x="x"
+      :y="y"
       :style="{ stroke: selected ? 'blue' : 'black' }"
     ></rect>
     <text
-      :x="p(x + rectWidth / 2)"
-      :y="p(y + rectHeight / 2)"
-      :textLength="p((5.5 * rectWidth) / 5)"
+      :x="x + rectWidth / 2"
+      :y="y + rectHeight / 2"
       dominant-baseline="middle"
       text-anchor="middle"
-      :style="{ fontSize: '' + fontSize + 'em' }"
+      :style="{ fontSize: '0.128em', fontFamily: 'monospace' }"
     >
       {{ name }}
     </text>
@@ -33,19 +32,13 @@ export default Vue.extend({
   },
   computed: {
     rectHeight() {
-      return 25;
+      return 6.25;
     },
     y() {
-      return this.bottom ? 75 : 0;
+      return this.bottom ? 18.75 : 0;
     },
     fontSize() {
       return Math.min(1.2, this.rectWidth / this.name.length);
-    },
-  },
-  methods: {
-    // percent
-    p(n: number) {
-      return `${n}%`;
     },
   },
   inheritAttrs: false,

@@ -114,7 +114,7 @@ const store = new Vuex.Store({
         commit("deleteCurrentRoom");
       }
     },
-    getBuilding({ commit, dispatch }) {
+    getBuilding({ commit }) {
       axios
         .get("/building.json", { timeout: 1000 })
         .then(({ data }) => {
@@ -126,7 +126,7 @@ const store = new Vuex.Store({
           // setTimeout(() => dispatch("getBuilding"), 500);
         });
     },
-    setBuilding({ state, commit, dispatch }) {
+    setBuilding({ state, commit }) {
       axios
         .post("/setbuilding", state.building, { timeout: 1000 })
         .then(() => {
