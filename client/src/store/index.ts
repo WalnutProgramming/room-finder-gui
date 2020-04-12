@@ -91,6 +91,14 @@ const store = new Vuex.Store({
     }) {
       hallways[currentHallwayIndex].parts.splice(currentRoomIndex, 1);
     },
+    adjustCurrentIndexAfterDelete(state) {
+      if (
+        state.currentRoomIndex ===
+        state.building.hallways[state.currentHallwayIndex].parts.length
+      ) {
+        state.currentRoomIndex -= 1;
+      }
+    },
     replaceBuilding(state, newBuilding) {
       state.building = newBuilding;
     },
@@ -136,6 +144,7 @@ const store = new Vuex.Store({
     deleteCurrentRoom({ commit, getters }) {
       if (getters.canDeleteRoom) {
         commit("deleteCurrentRoom");
+        commit("adjustCurrentIndexAfterDelete");
       }
     },
     getBuilding({ commit }) {

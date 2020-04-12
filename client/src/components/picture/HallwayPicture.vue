@@ -1,26 +1,30 @@
 <template>
-  <g :transform="`translate(${x} ${y})`">
-    <!-- only purpose of this rect is for @click -->
+  <g
+    :transform="`translate(${x} ${y})`"
+    @mouseenter="mouseInThisHallway = true"
+    @mousemove="mouseInThisHallway = true"
+    @mouseleave="mouseInThisHallway = false"
+    @click="click"
+  >
+    <!-- only purpose of this rect is to make it part of the click area -->
     <rect
       style="stroke: white; fill: white"
       :width="tweenedHallwayLength + 2"
       :height="12.5 + 6.25 * 2 + 2"
       x="-1"
       y="-1"
-      @click="click"
     ></rect>
     <rect
+      v-draw
       class="rect"
       :width="tweenedHallwayLength"
       height="12.5"
       x="0"
       y="6.25"
-      @click="click"
     ></rect>
     <g
       v-for="({ id, x, bottom, name, rectWidth }, roomIndex) in roomInfo"
       :key="id"
-      @click="click"
     >
       <RoomPicture
         :x="x"
@@ -37,15 +41,18 @@
       />
     </g>
     <span />
-    <g v-for="index in range(rooms.length + 1)" :key="index">
+    <g
+      v-for="index in range(rooms.length + 1)"
+      :key="index"
+      v-show="addingRoom && mouseInThisHallway"
+    >
       <rect
         height="6.25"
         y="0"
         width="0.2"
         :x="lineX(index)"
         style="fill: blue;"
-        v-show="addingRoom && mousePos.y <= 12.5 && index === closestLineX"
-        @click="click"
+        v-show="isLeft && index === closestLineX"
       />
       <rect
         height="6.25"
@@ -53,55 +60,55 @@
         width="0.2"
         :x="lineX(index)"
         style="fill: blue;"
-        v-show="addingRoom && mousePos.y > 12.5 && index === closestLineX"
-        @click="click"
+        v-show="!isLeft && index === closestLineX"
       />
     </g>
   </g>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import RoomPicture from "./RoomPicture.vue";
-import { mapState } from "vuex";
-import { gsap } from "gsap";
+import { defineComponent, computed, Ref, ref } from "@vue/composition-api";
+import { useState, useActions } from "vuex-composition-helpers";
+import { useTweened, range } from "../../composition";
+import { draw } from "@/directives";
 
-export default Vue.extend({
+export default defineComponent({
+  directives: { draw },
   components: { RoomPicture },
   props: {
-    origmousex: Number,
-    origmousey: Number,
+    origmouse: {
+      type: Object as () => { x: number; y: number } | null,
+    },
     x: { type: Number, default: 0 },
     y: { type: Number, default: 0 },
-    index: Number,
+    index: { type: Number, required: true },
   },
-  data() {
-    return { tweenedHallwayLength: 0 };
-  },
-  created() {
-    this.tweenedHallwayLength = this.hallwayLength;
-  },
-  computed: {
-    ...mapState(["addingRoom"]),
-    rooms(): any[] {
-      return this.$store.state.building.hallways[this.index].parts;
-    },
-    isCurrentHallway(): boolean {
-      return this.index === this.$store.state.currentHallwayIndex;
-    },
-    mousePos(): { x: number; y: number } {
-      return { x: this.origmousex - this.x, y: this.origmousey - this.y };
-    },
-    closestLineX(): number {
-      const arr = this.range(this.rooms.length + 1).map((ind) =>
-        Math.abs(this.lineX(ind) - this.mousePos.x)
-      );
-      return arr.indexOf(Math.min(...arr));
-    },
-    isLeft(): boolean {
-      return this.mousePos.y <= 12.5;
-    },
-    roomInfo() {
+  setup(props) {
+    const mousePos = computed(() =>
+      props.origmouse == null
+        ? null
+        : {
+            x: props.origmouse.x - props.x,
+            y: props.origmouse.y - props.y,
+          }
+    );
+    const mouseInThisHallway = ref(false);
+
+    const { addingRoom, building, currentHallwayIndex } = useState([
+      "addingRoom",
+      "building",
+      "currentHallwayIndex",
+    ]) as {
+      addingRoom: Ref<boolean>;
+      building: Ref<any>;
+      currentHallwayIndex: Ref<number>;
+    };
+    const rooms = computed(() => building.value.hallways[props.index].parts);
+    const isCurrentHallway = computed(
+      () => props.index === currentHallwayIndex.value
+    );
+    const roomInfo = computed(() => {
       const ret: {
         name: string;
         x: number;
@@ -110,7 +117,7 @@ export default Vue.extend({
         rectWidth: number;
       }[] = [];
       let x = 2.2;
-      for (const room of this.rooms) {
+      for (const room of rooms.value as any) {
         const name = "name" in room ? room.name.trim() : "";
         const bottom =
           ("side" in room && room.side === "Right") ||
@@ -120,35 +127,48 @@ export default Vue.extend({
         x += 7 + name.length - 1;
       }
       return ret;
-    },
-    hallwayLength(): number {
-      const { x, rectWidth } = this.roomInfo[this.roomInfo.length - 1];
+    });
+    const hallwayLength = computed(() => {
+      const { x, rectWidth } = roomInfo.value[roomInfo.value.length - 1];
       return x + rectWidth + 2;
-    },
-  },
-  methods: {
-    lineX(index: number): number {
-      if (index === this.roomInfo.length) {
-        return this.hallwayLength - 1.1;
-      } else {
-        return this.roomInfo[index].x - 1.1;
-      }
-    },
-    click(): void {
-      this.$store.dispatch("newRoom", {
-        position: this.closestLineX,
-        onRight: !this.isLeft,
-        hallwayIndex: this.index,
+    });
+    function lineX(index: number): number {
+      return index === roomInfo.value.length
+        ? hallwayLength.value - 1.1
+        : roomInfo.value[index].x - 1.1;
+    }
+    const closestLineX = computed(() => {
+      if (mousePos.value == null) return null;
+      const arr = range(rooms.value.length + 1).map((ind) =>
+        Math.abs(lineX(ind) - mousePos.value!.x)
+      );
+      return arr.indexOf(Math.min(...arr));
+    });
+    const isLeft = computed(() =>
+      mousePos.value == null ? true : mousePos.value.y <= 12.5
+    );
+
+    const dispatch = useActions(["newRoom"]);
+    function click(): void {
+      dispatch.newRoom({
+        position: closestLineX.value,
+        onRight: !isLeft.value,
+        hallwayIndex: props.index,
       });
-    },
-    range(n: number): number[] {
-      return [...Array(n).keys()];
-    },
-  },
-  watch: {
-    hallwayLength(newVal) {
-      gsap.to(this.$data, { duration: 0.2, tweenedHallwayLength: newVal });
-    },
+    }
+    return {
+      tweenedHallwayLength: useTweened(hallwayLength),
+      click,
+      roomInfo,
+      isCurrentHallway,
+      range,
+      rooms,
+      lineX,
+      addingRoom,
+      closestLineX,
+      isLeft,
+      mouseInThisHallway,
+    };
   },
 });
 </script>
