@@ -4,7 +4,7 @@
     @mouseenter="mouseInThisHallway = true"
     @mousemove="mouseInThisHallway = true"
     @mouseleave="mouseInThisHallway = false"
-    @click="click"
+    @mouseup="click"
   >
     <!-- only purpose of this rect is to make it part of the click area -->
     <rect
@@ -36,7 +36,24 @@
         :rectWidth="rectWidth"
         @click="
           $store.dispatch('clickedRoom', { hallwayIndex: index, roomIndex });
-          click();
+          mouseDownOnRoom = false;
+        "
+        @mousedown="
+          mouseDownOnRoom = true;
+          $store.commit('allowPanning', false);
+        "
+        @mousemove="
+          if (mouseDownOnRoom) {
+            $store.dispatch('startDraggingRoom', {
+              hallwayIndex: index,
+              roomIndex,
+            });
+            mouseDownOnRoom = false;
+          }
+        "
+        @mouseleave="
+          mouseDownOnRoom = false;
+          $store.commit('allowPanning', true);
         "
       />
     </g>
@@ -94,6 +111,7 @@ export default defineComponent({
           }
     );
     const mouseInThisHallway = ref(false);
+    const mouseDownOnRoom = ref(false);
 
     const { addingRoom, building, currentHallwayIndex } = useState([
       "addingRoom",
@@ -168,6 +186,7 @@ export default defineComponent({
       closestLineX,
       isLeft,
       mouseInThisHallway,
+      mouseDownOnRoom,
     };
   },
 });

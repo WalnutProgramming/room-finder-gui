@@ -1,5 +1,10 @@
 <template>
-  <g @click="$emit('click')">
+  <g
+    @click="$emit('click')"
+    @mousedown="$emit('mousedown')"
+    @mousemove="$emit('mousemove')"
+    @mouseleave="$emit('mouseleave')"
+  >
     <rect
       v-draw
       class="rect"
@@ -51,6 +56,5 @@ export default defineComponent({
       fontSize,
     };
   },
-  inheritAttrs: false,
 });
 </script>

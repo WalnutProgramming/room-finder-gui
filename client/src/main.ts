@@ -7,6 +7,14 @@ Vue.use(VueCompositionApi);
 
 Vue.config.productionTip = false;
 
+Vue.mixin({
+  methods: {
+    log(a: any) {
+      console.log(a);
+    },
+  },
+});
+
 new Vue({
   store,
   render: (h) => h(App),

@@ -13,17 +13,17 @@ const store = new Vuex.Store({
         {
           type: "Hallway",
           parts: [
-            { ...(getInitialModel("Room") as any), name: "a", side: "Left" },
-            { ...(getInitialModel("Room") as any), name: "b", side: "Right" },
-            { ...(getInitialModel("Room") as any), name: "c", side: "Right" },
+            { ...getInitialModel("Room"), name: "a", side: "Left" },
+            { ...getInitialModel("Room"), name: "b", side: "Right" },
+            { ...getInitialModel("Room"), name: "c", side: "Right" },
           ],
         },
         {
           type: "Hallway",
           parts: [
-            { ...(getInitialModel("Room") as any), name: "d", side: "Left" },
-            { ...(getInitialModel("Room") as any), name: "e", side: "Right" },
-            { ...(getInitialModel("Room") as any), name: "f", side: "Right" },
+            { ...getInitialModel("Room"), name: "d", side: "Left" },
+            { ...getInitialModel("Room"), name: "e", side: "Right" },
+            { ...getInitialModel("Room"), name: "f", side: "Right" },
           ],
         },
       ],
@@ -32,6 +32,12 @@ const store = new Vuex.Store({
     currentRoomIndex: 0,
     addingRoom: false,
     failingToConnect: false,
+    draggedRoom: getInitialModel("Room") as any,
+    positionOfRoomBeingDragged: null as null | {
+      hallwayIndex: number;
+      roomIndex: number;
+    },
+    allowPanning: true,
   },
   strict: process.env.NODE_ENV !== "production",
   getters: {
@@ -47,16 +53,27 @@ const store = new Vuex.Store({
   },
   mutations: {
     insertRoom(
-      { building: { hallways } },
+      { building: { hallways }, draggedRoom },
       {
         position,
         onRight,
         hallwayIndex,
       }: { position: number; onRight: boolean; hallwayIndex: number }
     ) {
-      const newRoom = getInitialModel("Room") as any;
-      newRoom.side = onRight ? "Right" : "Left";
-      hallways[hallwayIndex].parts.splice(position, 0, newRoom);
+      draggedRoom.side = onRight ? "Right" : "Left";
+      hallways[hallwayIndex].parts.splice(position, 0, draggedRoom);
+    },
+    generateNewRoom(state) {
+      state.draggedRoom = getInitialModel("Room") as any;
+    },
+    setDraggedRoom(state, newVal) {
+      state.draggedRoom = newVal;
+    },
+    positionOfRoomBeingDragged(state, newVal) {
+      state.positionOfRoomBeingDragged = newVal;
+    },
+    allowPanning(state, newVal) {
+      state.allowPanning = newVal;
     },
     switchCurrentRoomIndex(
       state,
@@ -119,6 +136,32 @@ const store = new Vuex.Store({
         commit("insertRoom", { position, onRight, hallwayIndex });
         commit("switchCurrentRoomIndex", { hallwayIndex, roomIndex: position });
         commit("addingRoom", false);
+        commit("positionOfRoomBeingDragged", null);
+        commit("generateNewRoom");
+        commit("allowPanning", true);
+      }
+    },
+    startDraggingRoom(
+      { commit, state: { building } },
+      { hallwayIndex, roomIndex }
+    ) {
+      commit(
+        "setDraggedRoom",
+        building.hallways[hallwayIndex].parts[roomIndex]
+      );
+      commit("addingRoom", true);
+      commit("switchCurrentRoomIndex", { hallwayIndex, roomIndex });
+      commit("deleteCurrentRoom");
+      commit("adjustCurrentIndexAfterDelete");
+      commit("positionOfRoomBeingDragged", { hallwayIndex, roomIndex });
+    },
+    draggedOntoNothing({ state, dispatch }) {
+      if (state.positionOfRoomBeingDragged != null) {
+        dispatch("newRoom", {
+          hallwayIndex: state.positionOfRoomBeingDragged.hallwayIndex,
+          position: state.positionOfRoomBeingDragged.roomIndex,
+          onRight: state.draggedRoom.side === "Right",
+        });
       }
     },
     clickedRoom(

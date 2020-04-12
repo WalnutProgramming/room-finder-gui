@@ -5,8 +5,11 @@
       ref="s"
       :viewBox="`${viewBoxOffset.x} ${viewBoxOffset.y} 0.1 50`"
       preserveAspectRatio="xMinYMid meet"
-      @mousedown="dragging = true"
-      @mouseup="dragging = false"
+      @mousedown="mousedown"
+      @mouseup="
+        dragging = false;
+        if ($store.state.addingRoom) $store.dispatch('draggedOntoNothing');
+      "
       @mouseleave="dragging = false"
       @keypress="$store.commit('addingRoom', false)"
     >
@@ -34,6 +37,7 @@
 <script lang="ts">
 import HallwayPicture from "./HallwayPicture.vue";
 import { defineComponent, ref, Ref } from "@vue/composition-api";
+import { useState } from "vuex-composition-helpers";
 
 export default defineComponent({
   setup() {
@@ -58,7 +62,20 @@ export default defineComponent({
       }
     }
 
-    return { mouse, viewBoxOffset, dragging, s, mousemove };
+    const { allowPanning } = useState(["allowPanning"]);
+
+    return {
+      mouse,
+      viewBoxOffset,
+      dragging,
+      s,
+      mousemove,
+      mousedown() {
+        if (allowPanning.value) {
+          dragging.value = true;
+        }
+      },
+    };
   },
   components: { HallwayPicture },
 });
