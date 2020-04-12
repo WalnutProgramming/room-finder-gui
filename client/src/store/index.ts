@@ -18,6 +18,14 @@ const store = new Vuex.Store({
             { ...(getInitialModel("Room") as any), name: "c", side: "Right" },
           ],
         },
+        {
+          type: "Hallway",
+          parts: [
+            { ...(getInitialModel("Room") as any), name: "d", side: "Left" },
+            { ...(getInitialModel("Room") as any), name: "e", side: "Right" },
+            { ...(getInitialModel("Room") as any), name: "f", side: "Right" },
+          ],
+        },
       ],
     },
     currentHallwayIndex: 0,
@@ -29,24 +37,33 @@ const store = new Vuex.Store({
   getters: {
     currentHallway: ({ building: { hallways }, currentHallwayIndex }) =>
       hallways[currentHallwayIndex],
-    rooms: (_, { currentHallway }) => currentHallway.parts,
-    currentRoom: ({ currentRoomIndex }, { rooms }) => rooms[currentRoomIndex],
+    currentRooms: (_, { currentHallway }) => currentHallway.parts,
+    currentRoom: ({ currentRoomIndex }, { currentRooms }) =>
+      currentRooms[currentRoomIndex],
     currentSchema: (_, { currentRoom: { type } }) =>
       schemas.find((s) => s.type === type),
-    canDeleteRoom: (_, { rooms }) => rooms.length > 1,
+    canDeleteRoom: (_, { currentRooms }) => currentRooms.length > 1,
     roomFinderBuilding: ({ building }) => getBuilding(building),
   },
   mutations: {
     insertRoom(
-      { building: { hallways }, currentHallwayIndex },
-      { position, onRight }: { position: number; onRight: boolean }
+      { building: { hallways } },
+      {
+        position,
+        onRight,
+        hallwayIndex,
+      }: { position: number; onRight: boolean; hallwayIndex: number }
     ) {
       const newRoom = getInitialModel("Room") as any;
       newRoom.side = onRight ? "Right" : "Left";
-      hallways[currentHallwayIndex].parts.splice(position, 0, newRoom);
+      hallways[hallwayIndex].parts.splice(position, 0, newRoom);
     },
-    switchCurrentRoomIndex(state, { newIndex }: { newIndex: number }) {
-      state.currentRoomIndex = newIndex;
+    switchCurrentRoomIndex(
+      state,
+      { hallwayIndex, roomIndex }: { hallwayIndex: number; roomIndex: number }
+    ) {
+      state.currentHallwayIndex = hallwayIndex;
+      state.currentRoomIndex = roomIndex;
     },
     setRoomField(
       { building: { hallways }, currentHallwayIndex, currentRoomIndex },
@@ -84,17 +101,24 @@ const store = new Vuex.Store({
   actions: {
     newRoom(
       { commit, state },
-      { position, onRight }: { position: number; onRight: boolean }
+      {
+        position,
+        onRight,
+        hallwayIndex,
+      }: { position: number; onRight: boolean; hallwayIndex: number }
     ) {
       if (state.addingRoom) {
-        commit("insertRoom", { position, onRight });
-        commit("switchCurrentRoomIndex", { newIndex: position });
+        commit("insertRoom", { position, onRight, hallwayIndex });
+        commit("switchCurrentRoomIndex", { hallwayIndex, roomIndex: position });
         commit("addingRoom", false);
       }
     },
-    clickedRoom({ commit, state }, { index }: { index: number }) {
+    clickedRoom(
+      { commit, state },
+      { hallwayIndex, roomIndex }: { roomIndex: number; hallwayIndex: number }
+    ) {
       if (!state.addingRoom) {
-        commit("switchCurrentRoomIndex", { newIndex: index });
+        commit("switchCurrentRoomIndex", { hallwayIndex, roomIndex });
       }
     },
     changeRoomType({ commit, getters }, { newRoomType }) {
